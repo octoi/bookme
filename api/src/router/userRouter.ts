@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { validateReqBody } from '@/lib/validateBody';
-import { generateToken } from '@/lib/jwt';
+import { generateToken, getUserFromReq } from '@/lib/jwt';
 
 const prismaClient = new PrismaClient();
 
@@ -83,6 +83,21 @@ userRouter.post('/login', (req, res) => {
           });
         })
         .catch(() => res.status(400).json({ message: 'Failed to find user' }));
+    })
+    .catch((err) => res.status(400).json({ message: err }));
+});
+
+userRouter.get('/', (req, res) => {
+  getUserFromReq(req)
+    .then((user: any) => {
+      prismaClient.user
+        .findUnique({ where: { id: user?.id } })
+        .then((data) => {
+          res.status(200).json(data);
+        })
+        .catch(() => {
+          res.status(400).json({ message: 'Failed to find user' });
+        });
     })
     .catch((err) => res.status(400).json({ message: err }));
 });
