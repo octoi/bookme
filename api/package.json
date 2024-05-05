@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "api for bookme",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/octoi/bookme.git"
+  },
+  "author": "fadhilsaheer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/octoi/bookme/issues"
+  },
+  "homepage": "https://github.com/octoi/bookme#readme"
+}
