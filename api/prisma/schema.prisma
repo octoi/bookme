@@ -33,9 +33,10 @@ model slot {
 }
 
 model booking {
-  id      String @id @default(uuid())
-  slot_id String
-  user_id String
-  slot    slot   @relation(fields: [slot_id], references: [id])
-  user    user   @relation(fields: [user_id], references: [id])
+  id         String   @id @default(uuid())
+  slot_id    String   @unique
+  user_id    String
+  created_at DateTime @default(now())
+  slot       slot     @relation(fields: [slot_id], references: [id])
+  user       user     @relation(fields: [user_id], references: [id])
 }
