@@ -25,10 +25,27 @@ slotRouter.post('/create', (req, res) => {
               res.status(200).json(data);
             })
             .catch((err) => {
-              res.status(400).json({ message: 'Failed to create slot.' });
+              res.status(400).json({ message: 'Failed to create slot' });
             });
         })
         .catch((err) => res.status(400).json({ message: err }));
+    })
+    .catch((err) => res.status(400).json({ message: err }));
+});
+
+slotRouter.delete('/:id', (req, res) => {
+  getUserFromReq(req)
+    .then((user: any) => {
+      prismaClient.slot
+        .delete({
+          where: { user_id: user.id, id: req.params.id },
+        })
+        .then((data) => {
+          res.status(200).json(data);
+        })
+        .catch((err) => {
+          res.status(400).json({ message: 'Failed to delete slot' });
+        });
     })
     .catch((err) => res.status(400).json({ message: err }));
 });
