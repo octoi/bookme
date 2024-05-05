@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { validateReqBody } from '@/lib/validateBody';
@@ -10,10 +11,15 @@ export const userRouter = Router();
 const registerBody = ['name', 'username', 'password'];
 userRouter.post('/register', (req, res) => {
   validateReqBody(req.body, registerBody)
-    .then(() => {
+    .then(async () => {
+      const hashedPassword = bcrypt.hash(req.body.password, 10);
+
       prismaClient.user
         .create({
-          data: req.body,
+          data: {
+            ...req.body,
+            password: hashedPassword,
+          },
           select: {
             id: true,
             name: true,
@@ -41,6 +47,42 @@ userRouter.post('/register', (req, res) => {
 
           res.status(400).json({ message: 'Failed to register user' });
         });
+    })
+    .catch((err) => res.status(400).json({ message: err }));
+});
+
+const loginBody = ['username', 'password'];
+userRouter.post('/login', (req, res) => {
+  validateReqBody(req.body, loginBody)
+    .then(() => {
+      // find user
+      prismaClient.user
+        .findUnique({
+          where: { username: req.body.username },
+        })
+        .then((user: any) => {
+          if (!user) {
+            res.status(400).json({ message: 'Failed to find user' });
+            return;
+          }
+
+          bcrypt.compare(req.body.password, user.password, (err, pass) => {
+            if (err)
+              return res
+                .status(500)
+                .json({ message: 'Failed to validate password' });
+            if (!pass)
+              return res.status(400).json({ message: 'Invalid password' });
+
+            delete user.password; // removes password from user object
+
+            res.status(200).json({
+              ...user,
+              token: generateToken(user),
+            });
+          });
+        })
+        .catch(() => res.status(400).json({ message: 'Failed to find user' }));
     })
     .catch((err) => res.status(400).json({ message: err }));
 });
